@@ -62,10 +62,7 @@ pub fn main() !void {
         std.log.info("Test message.", .{});
 
         pins.user_led_r.toggle();
-        hal.time.sleep_ms(250);
         pins.user_led_g.toggle();
-        hal.time.sleep_ms(250);
         pins.user_led_b.toggle();
-        hal.time.sleep_ms(250);
     }
 }
