@@ -28,9 +28,7 @@ pub fn build(b: *std.Build) void {
     mb.install_firmware(firmware, .{});
 
     const flash_cmd = b.addSystemCommand(&[_][]const u8{
-        "picotool",
-        "load",
-        "-f",
+        "./flash",
     });
     flash_cmd.addFileArg(firmware.get_emitted_bin(null));
     flash_cmd.step.dependOn(&firmware.artifact.step);

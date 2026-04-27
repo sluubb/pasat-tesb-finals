@@ -1,0 +1,14 @@
+#!/bin/sh
+
+file=${1:-}
+[ -n "$file" ] || { echo "Usage: $0 <file> [device-selection]" >&2; exit 1; }
+shift
+
+picotool reboot -f "$@"
+
+until picotool info "$@" >/dev/null 2>&1; do
+    sleep 0.5
+done
+
+picotool load "$file" "$@"
+exec picotool reboot -a "$@"
