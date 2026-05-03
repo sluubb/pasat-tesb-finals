@@ -4,7 +4,7 @@ file=${1:-}
 [ -n "$file" ] || { echo "Usage: $0 <file> [device-selection]" >&2; exit 1; }
 shift
 
-picotool reboot -f "$@"
+picotool reboot -f -u "$@"
 
 until picotool info "$@" >/dev/null 2>&1; do
     sleep 0.5
