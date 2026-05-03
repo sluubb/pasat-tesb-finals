@@ -1,15 +1,14 @@
 const std = @import("std");
-const microzig = @import("microzig");
-const board = microzig.board;
-const hal = microzig.hal;
-const core = microzig.core;
+
+const mz = @import("microzig");
+const hal = mz.hal;
 
 const USB_Device = hal.usb.Polled(.{});
-const USB_Serial = core.usb.drivers.CDC;
+const USB_Serial = mz.core.usb.drivers.CDC;
 
 var device: USB_Device = undefined;
 
-var controller: core.usb.DeviceController(.{
+var controller: mz.core.usb.DeviceController(.{
     .bcd_usb = USB_Device.max_supported_bcd_usb,
     .device_triple = .unspecified,
     .vendor = USB_Device.default_vendor_id,
@@ -20,7 +19,7 @@ var controller: core.usb.DeviceController(.{
     .configurations = &.{.{
         .attributes = .{ .self_powered = false },
         .max_current_ma = 50,
-        .Drivers = struct { serial: core.usb.drivers.CDC, reset: hal.usb.ResetDriver(null, 0) },
+        .Drivers = struct { serial: mz.core.usb.drivers.CDC, reset: hal.usb.ResetDriver(null, 0) },
     }},
 }, .{.{
     .serial = .{ .itf_notifi = "Board CDC", .itf_data = "Board CDC Data" },
@@ -34,6 +33,13 @@ pub fn init() void {
     device = .init();
 }
 
+pub fn ensure_updated() void {
+    while (true) {
+        poll();
+        if (flush()) return;
+    }
+}
+
 pub fn poll() void {
     device.poll(&controller);
 }
@@ -43,6 +49,8 @@ pub fn print(comptime fmt: []const u8, args: anytype) void {
 }
 
 pub fn flush() bool {
+    if (head == 0) return true;
+
     if (controller.drivers()) |drivers| {
         var tx = tx_buf[0..head];
 
