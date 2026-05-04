@@ -25,6 +25,16 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/main.zig"),
     });
 
+    firmware.add_c_source_file(.{
+        .file = b.path("deps/minmea/minmea.c"),
+        .flags = &[_][]const u8{
+            "-std=c99",
+            "-ffreestanding",
+        },
+    });
+
+    firmware.add_include_path(b.path("deps/minmea"));
+
     mb.install_firmware(firmware, .{});
 
     const flash_cmd = b.addSystemCommand(&[_][]const u8{
